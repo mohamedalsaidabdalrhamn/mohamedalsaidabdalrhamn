@@ -1139,7 +1139,7 @@ session_start();
     justify-content: space-between;
     gap: 6mm;
     padding-bottom: 2mm;
-    border-bottom: 2px solid #8a2846;
+    border-bottom: 2px solid #1f4e8c;
   }
   .contract-a4 .c-header .side { flex: 1; font-size: 8.5pt; line-height: 1.5; color: #444; }
   .contract-a4 .c-header .side p { margin: 0; }
@@ -1147,7 +1147,7 @@ session_start();
     font-family: 'Cairo', sans-serif;
     font-size: 14pt;
     font-weight: 700;
-    color: #8a2846;
+    color: #1f4e8c;
     margin: 0 0 1mm;
   }
   .contract-a4 .c-header .side.en { direction: ltr; text-align: left; }
@@ -1166,11 +1166,11 @@ session_start();
     font-weight: 700;
     margin: 0;
     padding: 0 8mm;
-    border: 1.5px solid #8a2846;
+    border: 1.5px solid #1f4e8c;
     border-radius: 4px;
-    color: #8a2846;
+    color: #1f4e8c;
   }
-  .contract-a4 .c-title .no { display: block; font-size: 10pt; margin-top: 1mm; color: #c0392b; font-weight: 700; }
+  .contract-a4 .c-title .no { display: block; font-size: 10pt; margin-top: 1mm; color: #1f4e8c; font-weight: 700; }
 
   /* القيم المعبأة */
   .contract-a4 .v {
@@ -1195,7 +1195,7 @@ session_start();
     text-align: justify;
     padding-right: 1mm;
   }
-  .contract-a4 ol.terms li::marker { font-weight: 700; color: #8a2846; }
+  .contract-a4 ol.terms li::marker { font-weight: 700; color: #1f4e8c; }
 
   .contract-a4 table.money {
     width: 100%;
@@ -1206,7 +1206,7 @@ session_start();
   }
   .contract-a4 table.money th,
   .contract-a4 table.money td { border: 1px solid #bbb; padding: 0.4mm 2mm; }
-  .contract-a4 table.money th { background: #f3e7eb; font-weight: 700; }
+  .contract-a4 table.money th { background: #e3ecf7; font-weight: 700; }
   .contract-a4 table.money td:first-child { text-align: right; font-weight: 600; }
 
   .contract-a4 .notes { margin: 2mm 0 0; }
@@ -1231,7 +1231,7 @@ session_start();
     font-size: 11pt;
     font-weight: 700;
     margin: 0 0 2mm;
-    color: #8a2846;
+    color: #1f4e8c;
   }
   .contract-a4 .c-footer p { margin: 0 0 2mm; }
   .contract-a4 .c-footer .stamp {
