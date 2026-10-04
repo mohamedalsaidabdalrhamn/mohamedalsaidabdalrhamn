@@ -1249,26 +1249,31 @@ session_start();
   .contract-actions { text-align: center; margin: 10px 0 30px; }
 
   @media print {
-    html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
-    body * { visibility: hidden; }
-    .contract-a4, .contract-a4 * { visibility: visible; }
+    html, body {
+      background: #fff !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      height: auto !important;
+      min-height: 0 !important;
+      overflow: visible !important;
+    }
+    /* إخفاء كل محتوى لوحة التحكم وإبقاء العقد فقط */
+    body > *:not(.contract-a4) { display: none !important; }
     .contract-a4 {
-      position: absolute;
-      top: 0;
-      right: 0;
-      left: 0;
+      display: block !important;
+      position: static !important;
       width: auto;
       min-height: 0;
       margin: 0;
       padding: 0;
       box-shadow: none;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
     .no-print, .no-print * { display: none !important; }
-    .contract-a4 { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
 </style>
 
-<body onload="window.print()">
 
 <div class="contract-a4">
 
@@ -1418,6 +1423,37 @@ session_start();
   <button type="button" class="btn btn-primary btn-flat" onclick="window.print()"><i class="fa fa-print"></i> طباعة</button>
   <a href="?do=Manage" class="btn btn-warning btn-flat"><i class="fa fa-reply"></i> رجوع</a>
 </div>
+
+<script>
+  (function () {
+    var printed = false;
+
+    // نقل العقد ليكون مباشرة داخل body حتى لا تؤثر عليه عناصر لوحة التحكم عند الطباعة
+    function prepare() {
+      var contract = document.querySelector('.contract-a4');
+      if (contract && contract.parentNode !== document.body) {
+        document.body.appendChild(contract);
+      }
+    }
+
+    function doPrint() {
+      if (printed) { return; }
+      printed = true;
+      prepare();
+      setTimeout(function () { window.print(); }, 300);
+    }
+
+    window.addEventListener('beforeprint', prepare);
+    window.addEventListener('load', function () {
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(doPrint);
+        setTimeout(doPrint, 2500);
+      } else {
+        doPrint();
+      }
+    });
+  })();
+</script>
 
 
 <?php } elseif ($do == 'view') {
