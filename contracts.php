@@ -139,7 +139,7 @@ session_start();
                   <i class="fa fa-trash"></i> <?php if($lang =='1'){ ?> Delete   <?php }elseif($lang == '2'){ ?> حذف <?php } ?>
                   </a>
                   <?php 	}	?>
-						      <a  class="btn btn-success btn-xs"   href="?do=print&&id=<?php echo $row['contract_no'] ?>"><i class="fa fa-file-pdf-o"></i>  طباعة  </a>
+						      <a  class="btn btn-success btn-xs"   href="contract_print.php?id=<?php echo $row['contract_no'] ?>&print=1" target="_blank"><i class="fa fa-file-pdf-o"></i>  طباعة  </a>
            </td>
                </tr>
 
@@ -300,7 +300,7 @@ session_start();
                                <i class="fa fa-trash"></i> <?php if($lang =='1'){ ?> Delete   <?php }elseif($lang == '2'){ ?> حذف <?php } ?>
                             </a>
                             <?php 	}	?>
-						               <a  class="btn btn-success btn-xs"   href="?do=print&&id=<?php echo $row['contract_no'] ?>"><i class="fa fa-file-pdf-o"></i>  طباعة  </a>
+						               <a  class="btn btn-success btn-xs"   href="contract_print.php?id=<?php echo $row['contract_no'] ?>&print=1" target="_blank"><i class="fa fa-file-pdf-o"></i>  طباعة  </a>
                       </td>
                </tr>
 
@@ -461,7 +461,7 @@ session_start();
                     </a>
 					<?php 	}	?>
 
-						<a  class="btn btn-success btn-xs"   href="?do=print&&id=<?php echo $row['contract_no'] ?>"><i class="fa fa-file-pdf-o"></i>  طباعة  </a>
+						<a  class="btn btn-success btn-xs"   href="contract_print.php?id=<?php echo $row['contract_no'] ?>&print=1" target="_blank"><i class="fa fa-file-pdf-o"></i>  طباعة  </a>
           </td>
      </tr>
              <?php } ?>
@@ -1076,385 +1076,11 @@ session_start();
 
 <?php } elseif ($do == 'print') {
 
-  $id = isset($_GET['id']) ? $_GET['id'] : 0;
-
-  $stmt = $con->prepare("SELECT * from contract where contract_no = ?  and b_id  = ? ");
-  $stmt->execute(array($id,$b_id));
-  $row = $stmt->fetch();
-
-  // بيانات الفرع (الترويسة)
-  $stmt = $con->prepare(" SELECT * FROM  branchen  where id = ? ORDER BY id DESC ");
-  $stmt->execute(array($b_id));
-  $infoEn = $stmt->fetch();
-
-  // بيانات القاعة / الشعار
-  $stmt = $con->prepare(" SELECT * FROM  branch  where id = ? ORDER BY id DESC ");
-  $stmt->execute(array($b_id));
-  $info = $stmt->fetch();
-
-  // الشهر والسنة الهجرية
-  $stvat = $con->prepare(" SELECT * FROM month   where  id = ? ");
-  $stvat->execute(array($row['hm']));
-  $hMonth = $stvat->fetch();
-  $hMonth = $hMonth ? $hMonth['name'] : '';
-
-  $stvat = $con->prepare(" SELECT * FROM year   where  id = ? ");
-  $stvat->execute(array($row['hy']));
-  $hYear = $stvat->fetch();
-  $hYear = $hYear ? $hYear['name'] : '';
-
-  $e = function ($v) { return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); };
+  // تم نقل صفحة العرض والطباعة إلى صفحة مستقلة
+  $id = isset($_GET['id']) ? $_GET['id'] : '';
+  $url = 'contract_print.php?id=' . urlencode($id) . '&print=1';
+  echo "<meta http-equiv='refresh' content='0; url=" . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . "' />";
  ?>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-
-<style>
-  @page {
-    size: A4 portrait;
-    margin: 8mm 10mm;
-  }
-
-  .contract-a4 {
-    direction: rtl;
-    font-family: 'Tajawal', 'Cairo', Tahoma, Arial, sans-serif;
-    font-size: 9pt;
-    line-height: 1.4;
-    color: #222;
-    background: #fff;
-    width: 210mm;
-    min-height: 297mm;
-    margin: 20px auto;
-    padding: 10mm 12mm;
-    box-sizing: border-box;
-    box-shadow: 0 0 12px rgba(0, 0, 0, .15);
-  }
-  .contract-a4 *, .contract-a4 *::before, .contract-a4 *::after { box-sizing: border-box; }
-
-  /* الترويسة */
-  .contract-a4 .c-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6mm;
-    padding-bottom: 2mm;
-    border-bottom: 2px solid #1f4e8c;
-  }
-  .contract-a4 .c-header .side { flex: 1; font-size: 8.5pt; line-height: 1.5; color: #444; }
-  .contract-a4 .c-header .side p { margin: 0; }
-  .contract-a4 .c-header .side h2 {
-    font-family: 'Cairo', sans-serif;
-    font-size: 14pt;
-    font-weight: 700;
-    color: #1f4e8c;
-    margin: 0 0 1mm;
-  }
-  .contract-a4 .c-header .side.en { direction: ltr; text-align: left; }
-  .contract-a4 .c-header .side.ar { text-align: right; }
-  .contract-a4 .c-header .logo { flex: 0 0 34mm; text-align: center; }
-  .contract-a4 .c-header .logo img { max-height: 22mm; max-width: 34mm; object-fit: contain; }
-
-  .contract-a4 .c-title {
-    text-align: center;
-    margin: 2.5mm 0 2mm;
-  }
-  .contract-a4 .c-title h1 {
-    display: inline-block;
-    font-family: 'Cairo', sans-serif;
-    font-size: 14pt;
-    font-weight: 700;
-    margin: 0;
-    padding: 0 8mm;
-    border: 1.5px solid #1f4e8c;
-    border-radius: 4px;
-    color: #1f4e8c;
-  }
-  .contract-a4 .c-title .no { display: block; font-size: 10pt; margin-top: 1mm; color: #1f4e8c; font-weight: 700; }
-
-  /* القيم المعبأة */
-  .contract-a4 .v {
-    font-weight: 700;
-    color: #000;
-    padding: 0 1.5mm;
-    border-bottom: 1px dotted #777;
-    white-space: nowrap;
-  }
-
-  .contract-a4 .intro p { margin: 0 0 0.8mm; text-align: justify; }
-  .contract-a4 .intro .agree { font-weight: 700; margin-top: 1mm; }
-
-  /* البنود */
-  .contract-a4 ol.terms {
-    margin: 1mm 0 0;
-    padding-right: 6mm;
-    padding-left: 0;
-  }
-  .contract-a4 ol.terms li {
-    margin-bottom: 0.5mm;
-    text-align: justify;
-    padding-right: 1mm;
-  }
-  .contract-a4 ol.terms li::marker { font-weight: 700; color: #1f4e8c; }
-
-  .contract-a4 table.money {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1.5mm 0;
-    font-size: 8.5pt;
-    text-align: center;
-  }
-  .contract-a4 table.money th,
-  .contract-a4 table.money td { border: 1px solid #bbb; padding: 0.4mm 2mm; }
-  .contract-a4 table.money th { background: #e3ecf7; font-weight: 700; }
-  .contract-a4 table.money td:first-child { text-align: right; font-weight: 600; }
-
-  .contract-a4 .notes { margin: 2mm 0 0; }
-
-  /* التواقيع */
-  .contract-a4 .c-footer {
-    display: flex;
-    justify-content: space-between;
-    gap: 8mm;
-    margin-top: 4mm;
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-  .contract-a4 .c-footer .party {
-    flex: 1;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 2mm 4mm;
-  }
-  .contract-a4 .c-footer h5 {
-    font-family: 'Cairo', sans-serif;
-    font-size: 11pt;
-    font-weight: 700;
-    margin: 0 0 2mm;
-    color: #1f4e8c;
-  }
-  .contract-a4 .c-footer p { margin: 0 0 2mm; }
-  .contract-a4 .c-footer .stamp {
-    flex: 0 0 30mm;
-    border: 1px dashed #aaa;
-    border-radius: 50%;
-    height: 24mm;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #999;
-    font-weight: 700;
-  }
-
-  .contract-actions { text-align: center; margin: 10px 0 30px; }
-
-  @media print {
-    html, body {
-      background: #fff !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      height: auto !important;
-      min-height: 0 !important;
-      overflow: visible !important;
-    }
-    /* إخفاء كل محتوى لوحة التحكم وإبقاء العقد فقط */
-    body > *:not(.contract-a4) { display: none !important; }
-    .contract-a4 {
-      display: block !important;
-      position: static !important;
-      width: auto;
-      min-height: 0;
-      margin: 0;
-      padding: 0;
-      box-shadow: none;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-    .no-print, .no-print * { display: none !important; }
-  }
-</style>
-
-
-<div class="contract-a4">
-
-  <!-- الترويسة -->
-  <header class="c-header">
-    <div class="side ar">
-      <h2><?php echo $e($info['name']); ?></h2>
-      <p>س.ت: <?php echo $e($info['Cphone']); ?></p>
-      <p>هاتف: <?php echo $e($info['Phone']); ?> - فاكس: <?php echo $e($info['Fax']); ?></p>
-      <p>جوال: <?php echo $e($info['Mobile']); ?> - <?php echo $e($info['Mobile1']); ?></p>
-      <p><?php echo $e($info['Country']); ?></p>
-      <p>الرقم الضريبي: <?php echo $e($info['Vat_Number']); ?></p>
-    </div>
-
-    <div class="logo">
-      <img src="../../layout/dist/img/<?php echo $e($info['Avatar']); ?>" alt="logo">
-    </div>
-
-    <div class="side en">
-      <h2><?php echo $e($infoEn['name']); ?></h2>
-      <p>C.R: <?php echo $e($infoEn['Cphone']); ?></p>
-      <p>Tel: <?php echo $e($infoEn['Phone']); ?> - Fax: <?php echo $e($infoEn['Fax']); ?></p>
-      <p>Mobile: <?php echo $e($infoEn['Mobile']); ?> - <?php echo $e($infoEn['Mobile1']); ?></p>
-      <p><?php echo $e($infoEn['Country']); ?></p>
-      <p>VAT No: <?php echo $e($infoEn['Vat_Number']); ?></p>
-    </div>
-  </header>
-
-  <div class="c-title">
-    <h1>عقد إيجار</h1>
-    <span class="no">رقم العقد: <?php echo $e($row['contract_no']); ?></span>
-  </div>
-
-  <!-- المقدمة -->
-  <section class="intro">
-    <p>
-      إنه في يوم <span class="v"><?php echo $e($row['day']); ?></span>
-      - <span class="v"><?php echo $e($row['bhd']); ?></span>
-      الموافق <span class="v"><?php echo $e($row['date']); ?> م</span>
-    </p>
-    <p>تم بعون الله وتوفيقه الاتفاق بين كل من:</p>
-    <p>
-      <strong>أولاً:</strong> صاحب <span class="v"><?php echo $e($info['name']); ?></span> بالأحساء - <strong>طرف أول (مؤجر)</strong>.
-    </p>
-    <p>
-      <strong>ثانياً:</strong> <span class="v"><?php echo $e($row['name']); ?></span>
-      صاحب الهوية رقم <span class="v"><?php echo $e($row['hafiza_no']); ?></span>
-      - جوال رقم <span class="v"><?php echo $e($row['phone']); ?><?php if (!empty($row['phone1'])) { echo ' / ' . $e($row['phone1']); } ?></span>
-      - <strong>طرف ثانٍ (مستأجر)</strong>.
-    </p>
-    <p class="agree">وأقر الطرفان بكامل أهليتهما المعتبرة شرعاً واتفقا على ما يلي:</p>
-  </section>
-
-  <!-- البنود -->
-  <ol class="terms">
-    <li>بموجب هذا العقد أجّر الطرف الأول للطرف الثاني <span class="v"><?php echo $e($info['name']); ?></span> الكائنة بمحاسن، وما تضمنته من أثاث ومفروشات وأدوات، وهي على أحسن حال وصالحة للغرض المستأجرة لأجله.</li>
-
-    <li>
-      مدة العقد تبدأ من الساعة <span class="v"><?php echo $e($row['fclock']); ?></span>
-      يوم <span class="v"><?php echo $e($row['s_name']); ?> <?php echo $e($row['hd']); ?>/<?php echo $e($hMonth); ?>/<?php echo $e($hYear); ?>هـ</span>
-      الموافق <span class="v"><?php echo $e($row['start_date']); ?></span>،
-      وتنتهي في تمام الساعة <span class="v"><?php echo $e($row['tclock']); ?></span>
-      يوم <span class="v"><?php echo $e($row['e_name']); ?> <?php echo $e($row['hd'] + 1); ?>/<?php echo $e($hMonth); ?>/<?php echo $e($hYear); ?>هـ</span>
-      الموافق <span class="v"><?php echo $e($row['end_date']); ?></span>.
-    </li>
-
-    <li>تعهد الطرف الثاني باستعمال الموقع للغرض الذي أُعد من أجله، والمحافظة على أثاثه ومفروشاته الموجودة به ومبانيه وديكوراته.</li>
-
-    <li>
-      اتفق الطرفان على قيمة الإيجار وتفاصيل السداد كالتالي:
-      <table class="money">
-        <thead>
-          <tr>
-            <th>البيان</th>
-            <th>المبلغ</th>
-            <th>ضريبة القيمة المضافة (15%)</th>
-            <th>المجموع (ريال)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>قيمة الإيجار</td>
-            <td><?php echo $e($row['m']); ?></td>
-            <td><?php echo $e($row['youm']); ?></td>
-            <td><strong><?php echo $e($row['rent_price']); ?></strong></td>
-          </tr>
-          <tr>
-            <td>المدفوع (العربون)</td>
-            <td><?php echo $e($row['cdp']); ?></td>
-            <td><?php echo $e($row['dpv']); ?></td>
-            <td><strong><?php echo $e($row['down_payment']); ?></strong></td>
-          </tr>
-          <tr>
-            <td>المتبقي</td>
-            <td><?php echo $e($row['crv']); ?></td>
-            <td><?php echo $e($row['rv']); ?></td>
-            <td><strong><?php echo $e($row['remaining']); ?></strong></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-
-    <li>عند إلغاء الحجز لا يُرد العربون المدفوع، ومدة استرجاع التأمين شهر من تاريخ الحفل، بعدها يعتبر التأمين من ضمن إيجار القاعة ولا يحق المطالبة به.</li>
-    <li>يدفع المستأجر <span class="v"><?php echo $e($row['tameen']); ?></span> ريال تأميناً للقاعة قبل الزواج بـ (7) أيام، ويلتزم بالزيادة في حالة الأضرار البالغة.</li>
-    <li>لا يُرجع العربون في حالة إلغاء عقد إيجار القاعة وقيمته <span class="v"><?php echo $e($row['down_payment']); ?></span> ريال، وإذا أوجد مستأجراً يحل مكانه يُخصم فقط <span class="v"><?php echo $e($row['subtraction']); ?></span> ريال.</li>
-    <li><strong>لا يُستبدل الحجز حتى يتوفر مستأجر آخر يحل محله، وإلا يُخصم العربون.</strong></li>
-    <li>لا يحق لمستأجر القاعة تأجيرها لطرف ثالث إطلاقاً (يُمنع أي حفل خارج القاعة المغلقة إلا بتصريح من الشرطة أو الإمارة).</li>
-    <li>يُمنع منعاً باتاً النوم في القاعة من قبل أهل العروسين أو المدعوين.</li>
-    <li>يجب تسليم مفاتيح القاعة فور الانتهاء من الزواج (منعاً لتحمل أي مسؤولية).</li>
-    <li>عدم إدخال الأرز داخل قاعة الرجال أو النساء، ويقتصر على قاعة الطعام.</li>
-    <li>عند طلب صاحب الحفل حضور أهله والعروس قبل الساعة الرابعة يدفع إيجاراً قدره 300 ريال.</li>
-    <li>صاحب الفرح يتحمل مسؤولية التفحيط وإطلاق النار أو استخدام الألعاب النارية داخل وخارج القاعة، أو في حالة الشجار، أو إدخال جوال الكاميرا أو التصوير في قاعة النساء.</li>
-    <li>عدم استخدام الفحم داخل القاعة نهائياً. <strong>(يلتزم المستأجر بدفع باقي قيمة الإيجار في حالة عدم إقامة الحفل)</strong></li>
-    <li>الطاقة الاستيعابية لصالة الرجال <span class="v"><?php echo $e($info['mhc']); ?></span> فرد، والطاقة الاستيعابية لصالة النساء <span class="v"><?php echo $e($info['whc']); ?></span> فرد.</li>
-    <li>عدد المتزوجين <span class="v"><?php echo $e($row['marrid_no']); ?></span> فقط.</li>
-    <li>إذا حدث تخريب في محتويات القاعة تُحجز الكوشة إلى حين دفع قيمة التخريب.</li>
-    <li>يُمنع الشكشكة والدبكات وجلسات العود داخل وخارج الصالة، ويُمنع منعاً باتاً إطلاق الأعيرة النارية وحمل السلاح والألعاب النارية.</li>
-    <li><strong>في حال دفع المتبقي من إيجار القاعة قبل الزواج لا يُسترد مهما كانت الظروف.</strong></li>
-    <li>عند عمل العقد الرجاء مراجعة قسم الشرطة (الضبط الإداري) من أجل إحضار تفويض لإقامة الحفل.</li>
-    <li>يتعهد الطرف الثاني بعدم حمل السلاح أو وضع مواد ملتهبة أو ضارة داخل وخارج القاعة أو إطلاق النار أو استخدام الألعاب النارية من قبله أو أحد المدعوين، وفي حال خلاف ذلك يكون مسؤولاً أمام السلطات الحكومية ويتحمل كل ما يترتب على ذلك.</li>
-    <li>العرضة والسامري تقام فقط داخل قاعة الرجال، والمستأجر يتحمل تكلفة التلفيات ولا يحق له الاعتراض.</li>
-    <li>يتعهد الطرف الثاني بمسؤوليته عن كل حريق أو سرقة تحصل للموقع أو موجوداته مهما كانت الأسباب.</li>
-  </ol>
-
-  <?php if (trim((string) $row['note']) !== '') { ?>
-  <p class="notes"><strong>ملاحظات:</strong> <?php echo nl2br($e($row['note'])); ?></p>
-  <?php } ?>
-
-  <!-- التواقيع -->
-  <footer class="c-footer">
-    <div class="party">
-      <h5>الطرف الأول (المؤجر)</h5>
-      <p>الاسم: <strong><?php echo $e($info['name']); ?></strong></p>
-      <p>التوقيع: ..............................</p>
-    </div>
-    <div class="stamp">الختم</div>
-    <div class="party">
-      <h5>الطرف الثاني (المستأجر)</h5>
-      <p>الاسم: <strong><?php echo $e($row['name']); ?></strong></p>
-      <p>التوقيع: ..............................</p>
-    </div>
-  </footer>
-
-</div>
-
-<div class="contract-actions no-print">
-  <button type="button" class="btn btn-primary btn-flat" onclick="window.print()"><i class="fa fa-print"></i> طباعة</button>
-  <a href="?do=Manage" class="btn btn-warning btn-flat"><i class="fa fa-reply"></i> رجوع</a>
-</div>
-
-<script>
-  (function () {
-    var printed = false;
-
-    // نقل العقد ليكون مباشرة داخل body حتى لا تؤثر عليه عناصر لوحة التحكم عند الطباعة
-    function prepare() {
-      var contract = document.querySelector('.contract-a4');
-      if (contract && contract.parentNode !== document.body) {
-        document.body.appendChild(contract);
-      }
-    }
-
-    function doPrint() {
-      if (printed) { return; }
-      printed = true;
-      prepare();
-      setTimeout(function () { window.print(); }, 300);
-    }
-
-    window.addEventListener('beforeprint', prepare);
-    window.addEventListener('load', function () {
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(doPrint);
-        setTimeout(doPrint, 2500);
-      } else {
-        doPrint();
-      }
-    });
-  })();
-</script>
-
 
 <?php } elseif ($do == 'view') {
  ?>
@@ -2261,7 +1887,7 @@ font-family: myFont;
 			</div>
 			<div class="row">
 				<div class="footer">
-						<a  class="btn btn-success btn-xs"   href="?do=print&&id=<?php echo $row['contract_no'] ?>"><i class="fa fa-file-pdf-o"></i>  طباعة  </a>
+						<a  class="btn btn-success btn-xs"   href="contract_print.php?id=<?php echo $row['contract_no'] ?>&print=1" target="_blank"><i class="fa fa-file-pdf-o"></i>  طباعة  </a>
 						<a  class="btn btn-warning btn-xs"   href="?do=Edit&&id=<?php echo $row['contract_no'] ?>"><i class="fa fa-edit"></i>  تعديل   </a>
 						<a href="?do=Manage" class="btn btn-warning btn-flat" ><i class="fa fa-reply"></i> رجوع  </a>
 				</div>
